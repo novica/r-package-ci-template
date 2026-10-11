@@ -1,0 +1,7 @@
+url: {{site_url}}
+template:
+  bootstrap: 5
+# release-please versions never carry a .9000 suffix, so build only the
+# release site.
+development:
+  mode: release

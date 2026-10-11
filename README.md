@@ -21,42 +21,72 @@ What it sets up:
 - **Contributor files**: issue forms, a PR template with an AI-use
   disclosure, a contributing guide, `CODEOWNERS` and Dependabot for actions.
 
-## Use
+The repository is a minimal working package with all of this in place. Use
+it as a GitHub template for a new package, or apply the CI files to an
+existing one.
+
+## Start a new package
+
+1. Click **Use this template** → **Create a new repository**. Name the
+   repository after the package (letters, digits and dots only).
+2. Clone it and run the setup script once:
+
+   ```sh
+   git clone git@github.com:<you>/<package>.git
+   cd <package>
+   tools/setup.sh                      # or: tools/setup.sh <package> <orcid>
+   ```
+
+   It fills in the package name, repository, site URL and your name and
+   email (from `git config`), adds your ORCID if given, writes
+   `CITATION.cff` and `README.md`, and removes `tools/`.
+3. Write the `Title` and `Description` in `DESCRIPTION` (and in
+   `CITATION.cff`), replace `R/hello.R` with your code, and commit.
+4. Set up the [repository settings](#repository-settings).
+
+The package starts at version 0.0.0, and its first release is 0.1.0. After
+that release, remove `"release-as"` from `release-please-config.json`.
+
+Actions are disabled on this template repository, since its workflows
+would run against the placeholders. A repository created from it has them
+enabled.
+
+## Add to an existing package
 
 ```sh
 git clone https://github.com/novica/r-package-ci-template
-./r-package-ci-template/apply.sh path/to/your/package
+r-package-ci-template/tools/apply.sh path/to/package
 ```
 
-`apply.sh` reads the package name and version from `DESCRIPTION` and
-`owner/repo` from the `origin` remote (or pass it as the second argument).
-It copies everything in [`template/`](template/), fills in the placeholders,
-generates `CITATION.cff` from `DESCRIPTION` and adds the new files to
-`.Rbuildignore`. It never overwrites an existing file; skipped files are
-listed so you can compare them with `template/` by hand.
+`apply.sh` copies only the CI, release and citation files, never the
+package skeleton. It reads the package name and version from `DESCRIPTION`
+and `owner/repo` from the `origin` remote (or pass it as the second
+argument), generates `CITATION.cff` from `DESCRIPTION` and adds the new
+files to `.Rbuildignore`. It never overwrites an existing file; skipped
+files are listed so you can compare them by hand.
 
-The files live in `template/` and are applied with `apply.sh` rather than
-GitHub's "Use this template" button, because the setup usually goes into a
-package that already exists, and some files (`CITATION.cff`, the manifest)
-depend on its `DESCRIPTION`.
+The version in `DESCRIPTION` is taken as the last release. For a package
+that has never been released, pass `--unreleased`: release-please then
+starts at 0.0.0 and the first release is 0.1.0.
 
 Then, in the package:
 
-1. In `_pkgdown.yml`, set `url:` to the GitHub Pages address and
-   `development: mode: release`.
+1. If it already had `_pkgdown.yml`, set `url:` to the GitHub Pages
+   address and `development: mode: release`.
 2. Check `CITATION.cff` (license, abstract) and `inst/CITATION`.
-3. Set `Version` in `DESCRIPTION` to the last released version, without a
-   `.9000` suffix, and make sure `.release-please-manifest.json` matches.
+3. Run `air format .` and `jarl check .`: R CMD check waits for both.
 4. If a dependency is not on CRAN (for example INLA), uncomment
    `extra-repositories` in the three R workflows and add an
    `Additional_repositories:` field to `DESCRIPTION`.
-5. Once the package is on CRAN, add the CRAN DOI
-   (`10.32614/CRAN.package.<name>`) to `inst/CITATION`, `CITATION.cff` and a
-   README badge.
+
+## After the first CRAN release
+
+Add the CRAN DOI (`10.32614/CRAN.package.<name>`) to `inst/CITATION`,
+`CITATION.cff` and a README badge.
 
 ## Repository settings
 
-These are not files, so `apply.sh` can't set them:
+These are not files, so the scripts can't set them:
 
 - **General → Pull Requests:** allow only **squash merging**, with the
   default commit message set to the PR title. release-please reads the
