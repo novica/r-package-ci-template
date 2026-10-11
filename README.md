@@ -143,9 +143,10 @@ Things the setup gets right that were wrong at first:
   `GITHUB_TOKEN` don't trigger other workflows, so it never ran.
 - **R-devel stays out of PRs.** It has no binary packages and compiles
   every dependency.
-- **Windows builds without vignettes.** Quarto can't load the package
-  while `R CMD build` renders vignettes on Windows; `R CMD check` still
-  rebuilds them.
+- **Windows skips vignettes.** Quarto can't load the package while
+  `R CMD build` renders vignettes on Windows. Building without them made
+  `R CMD check` warn about the missing `inst/doc`, so Windows also checks
+  with `--ignore-vignettes`; the other platforms check the vignettes.
 - **`setup-jarl` already runs `jarl check`.** Running it again in a
   separate step lints twice.
 - **Concurrency on every workflow.** Checks cancel superseded runs.
