@@ -1,7 +1,7 @@
 # {{package}}
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/{{repo}}/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/{{repo}}/actions/workflows/R-CMD-check.yml)
+[![R-CMD-check](https://github.com/{{repo}}/actions/workflows/R-CMD-check.yml/badge.svg?branch=main)](https://github.com/{{repo}}/actions/workflows/R-CMD-check.yml)
 [![Codecov test coverage](https://codecov.io/gh/{{repo}}/graph/badge.svg)](https://app.codecov.io/gh/{{repo}})
 <!-- badges: end -->
 

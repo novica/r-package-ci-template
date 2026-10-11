@@ -128,6 +128,12 @@ Things the setup gets right that were wrong at first:
 - **R CMD check still runs when workflows change.** It ignores issue and PR
   templates under `.github/`, but not `.github/workflows/`, so a CI change
   is tested on its own PR.
+- **R CMD check also runs on pushes to `main`, and the badge asks for
+  `main`.** Without that, the badge showed the latest PR run, including a
+  failed one on an unrelated branch.
+- **NEWS.md handles the first release.** A first release has no previous
+  tag, so its changelog heading is `## 0.1.0 (date)` without a compare
+  link, and a pattern that required `## [0.1.0](...)` wrote no NEWS.md.
 - **pkgdown has no path filter.** `README.md` and `NEWS.md` are the home
   and news pages, so ignoring `*.md` left the site stale.
 - **pkgdown builds once, in release mode.** release-please versions never
