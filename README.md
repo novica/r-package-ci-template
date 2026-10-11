@@ -2,13 +2,19 @@
 
 CI, release and citation setup for R packages on GitHub, extracted from
 [ParBayesianOptimization](https://github.com/novica/ParBayesianOptimization)
-and [shinyds](https://github.com/novica/shinyds).
+and [shinyds](https://github.com/novica/shinyds), and applied to
+[ggindex](https://github.com/discindo/ggindex).
 
 What it sets up:
 
-- **R CMD check** on every PR with `--as-cran` on macOS, Windows and Ubuntu
-  (release and oldrel-1), gated on [air](https://posit-dev.github.io/air/)
-  formatting and [jarl](https://jarl.etiennebacher.com) linting. R-devel runs
+- **R CMD check** on every PR and after each merge to `main` (for the
+  README badge), with `--as-cran` on macOS, Windows and Ubuntu (release
+  and oldrel-1), gated on [air](https://posit-dev.github.io/air/)
+  formatting and [jarl](https://jarl.etiennebacher.com) linting. Only errors
+  fail the check; warnings and notes show in the log. Windows skips
+  vignettes, since Quarto can't load the package during `R CMD build`
+  there. R-devel has no binary
+  packages and compiles every dependency, so it stays out of PRs and runs
   weekly and on demand.
 - **Test coverage** to Codecov on every push to `main`.
 - **pkgdown site** deployed to GitHub Pages on every push to `main`.
@@ -67,7 +73,8 @@ files are listed so you can compare them by hand.
 
 The version in `DESCRIPTION` is taken as the last release. For a package
 that has never been released, pass `--unreleased`: release-please then
-starts at 0.0.0 and the first release is 0.1.0.
+starts at 0.0.0 and the first release is 0.1.0. After that release,
+remove `"release-as"` from `release-please-config.json`.
 
 Then, in the package:
 
@@ -88,6 +95,10 @@ Add the CRAN DOI (`10.32614/CRAN.package.<name>`) to `inst/CITATION`,
 
 These are not files, so the scripts can't set them:
 
+- **Rules → Rulesets:** protect `main`. Require a pull request before
+  merging, and require the **Validate PR title** status check. Don't make
+  the R CMD check jobs required: they skip PRs that only touch
+  documentation, and a required check that never starts blocks the merge.
 - **General → Pull Requests:** allow only **squash merging**, with the
   default commit message set to the PR title. release-please reads the
   squash commit subject, and `BEGIN_COMMIT_OVERRIDE` only works for
@@ -118,41 +129,3 @@ These are not files, so the scripts can't set them:
   versions, so the patch release can go to CRAN instead.
 - CRAN asks for a gap between submissions. Hold the release PR open until
   you are ready to submit, then merge it and submit from `main`.
-
-## Why it looks like this
-
-Things the setup gets right that were wrong at first:
-
-- **Path filters have no stray spaces.** A pattern like `"*.json "` matches
-  nothing.
-- **R CMD check still runs when workflows change.** It ignores issue and PR
-  templates under `.github/`, but not `.github/workflows/`, so a CI change
-  is tested on its own PR.
-- **R CMD check also runs on pushes to `main`, and the badge asks for
-  `main`.** Without that, the badge showed the latest PR run, including a
-  failed one on an unrelated branch.
-- **NEWS.md handles the first release.** A first release has no previous
-  tag, so its changelog heading is `## 0.1.0 (date)` without a compare
-  link, and a pattern that required `## [0.1.0](...)` wrote no NEWS.md.
-- **pkgdown has no path filter.** `README.md` and `NEWS.md` are the home
-  and news pages, so ignoring `*.md` left the site stale.
-- **pkgdown builds once, in release mode.** release-please versions never
-  carry `.9000`, so a separate dev build only duplicated the site at
-  `/dev/`.
-- **No `release: published` trigger.** Releases created with the default
-  `GITHUB_TOKEN` don't trigger other workflows, so it never ran.
-- **R-devel stays out of PRs.** It has no binary packages and compiles
-  every dependency.
-- **Windows skips vignettes.** Quarto can't load the package while
-  `R CMD build` renders vignettes on Windows. Building without them made
-  `R CMD check` warn about the missing `inst/doc`, so Windows also checks
-  with `--ignore-vignettes`; the other platforms check the vignettes.
-- **`setup-jarl` already runs `jarl check`.** Running it again in a
-  separate step lints twice.
-- **Concurrency on every workflow.** Checks cancel superseded runs.
-  release-please queues instead of cancelling, so a run never stops
-  halfway through pushing to the release PR branch.
-- **Citations list authors in `DESCRIPTION` order.** Put the original
-  author first; the maintainer is taken from the `cre` role wherever it
-  appears. R's automatic citation lists only `aut` people, so a maintainer
-  without `aut` drops out.

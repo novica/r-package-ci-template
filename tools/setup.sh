@@ -69,7 +69,8 @@ Next steps:
      title and abstract in CITATION.cff.
   2. Replace R/hello.R and its test with your own code.
   3. Commit, then set up the repository settings listed in the template
-     README (squash merging, Actions PR permission, Pages, CODECOV_TOKEN).
+     README (ruleset on main, squash merging, Actions PR permission, Pages,
+     CODECOV_TOKEN).
   4. The first release is 0.1.0. After it, remove "release-as" from
      release-please-config.json.
 MSG
