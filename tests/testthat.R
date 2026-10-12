@@ -1,4 +1,4 @@
 library(testthat)
-library({{package}})
+library({{ package }})
 
 test_check("{{package}}")
