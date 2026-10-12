@@ -37,7 +37,7 @@ echo "Package: $package $version, repo: $repo"
 # The CI, release and citation files. The rest of the template (DESCRIPTION,
 # R/, tests/, README, ...) is the skeleton for new packages.
 files=(
-  $(cd "$src" && find .github -type f | sort)
+  $(cd "$src" && find .github -type f ! -name template-ci.yml | sort)
   air.toml jarl.toml codecov.yml release-please-config.json inst/CITATION
 )
 
@@ -48,7 +48,7 @@ copy() {
   mkdir -p "$(dirname "$dest")"
   sed -e "s#{{package}}#$package#g" -e "s#{{repo}}#$repo#g" \
       -e "s#{{owner}}#$owner#g" -e "s#{{site_url}}#$site_url#g" \
-      "$src/$rel" > "$dest"
+      -e '/# template-only$/d' "$src/$rel" > "$dest"
   copied+=("$rel")
 }
 for f in "${files[@]}"; do copy "$f"; done

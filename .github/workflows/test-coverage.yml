@@ -22,6 +22,7 @@ concurrency:
 
 jobs:
   test-coverage:
+    if: github.repository != 'novica/r-package-ci-template' # template-only
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}

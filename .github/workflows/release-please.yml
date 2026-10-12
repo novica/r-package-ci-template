@@ -13,6 +13,7 @@ concurrency:
 
 jobs:
   release-please:
+    if: github.repository != 'novica/r-package-ci-template' # template-only
     runs-on: ubuntu-latest
     permissions:
       contents: write

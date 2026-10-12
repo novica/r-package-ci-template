@@ -58,6 +58,8 @@ mv tools/README-package.md README.md
 sed -i "s/^Copyright (c) .*/Copyright (c) $(date +%Y) $package authors/" LICENSE.md
 sed -i "s/^YEAR: .*/YEAR: $(date +%Y)/" LICENSE
 Rscript tools/cff.R . "$repo" "$site_url"
+sed -i '/# template-only$/d' .github/workflows/*.yml
+rm .github/workflows/template-ci.yml
 sed -i '/^\^tools\$$/d' .Rbuildignore
 rm -rf tools
 

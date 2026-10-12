@@ -49,6 +49,7 @@ jobs:
 
   R-CMD-check:
     needs: [air, jarl]
+    if: github.repository != 'novica/r-package-ci-template' # template-only
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})

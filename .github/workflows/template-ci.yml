@@ -1,0 +1,75 @@
+# Checks the template itself. The package workflows skip their jobs in
+# this repository (the "# template-only" lines), and tools/setup.sh and
+# tools/apply.sh remove both those lines and this file.
+name: Template CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint workflows
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
+          ./actionlint -color
+
+  setup:
+    name: tools/setup.sh + R CMD check
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Run tools/setup.sh on a copy
+        run: |
+          PKG_DIR="$RUNNER_TEMP/testpkg"
+          echo "PKG_DIR=$PKG_DIR" >> "$GITHUB_ENV"
+          cp -r . "$PKG_DIR"
+          cd "$PKG_DIR"
+          git remote set-url origin https://github.com/example/testpkg
+          git config user.name "Test Author"
+          git config user.email "test@example.com"
+          tools/setup.sh testpkg 0000-0002-1825-0097
+
+      - name: Check no template leftovers
+        working-directory: ${{ env.PKG_DIR }}
+        run: |
+          if grep -rnE '\{\{(package|repo|owner|site_url|given|family|email)\}\}|# template-only' \
+            --exclude-dir=.git .; then
+            echo "::error::Template leftovers found after setup.sh"
+            exit 1
+          fi
+          test ! -e tools
+          test ! -e .github/workflows/template-ci.yml
+          test -f CITATION.cff
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: ${{ env.PKG_DIR }}
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          working-directory: ${{ env.PKG_DIR }}
+          error-on: '"error"'

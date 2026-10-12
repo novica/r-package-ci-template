@@ -53,9 +53,12 @@ existing one.
 The package starts at version 0.0.0, and its first release is 0.1.0. After
 that release, remove `"release-as"` from `release-please-config.json`.
 
-Actions are disabled on this template repository, since its workflows
-would run against the placeholders. A repository created from it has them
-enabled.
+On this template repository, the package jobs (R CMD check, coverage,
+pkgdown, release-please) are skipped by lines marked `# template-only`,
+since they would run against the placeholders. Instead, `template-ci.yml`
+lints the workflows and runs `tools/setup.sh` on a copy, then checks the
+result. `tools/setup.sh` and `tools/apply.sh` remove the marked lines and
+`template-ci.yml`.
 
 ## Add to an existing package
 
