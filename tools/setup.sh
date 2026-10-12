@@ -36,15 +36,15 @@ given="${name% *}"
 [ "$given" = "$name" ] && given=""
 
 fill() {
-  sed -i -e "s#{{package}}#$package#g" -e "s#{{repo}}#$repo#g" \
-    -e "s#{{owner}}#$owner#g" -e "s#{{site_url}}#$site_url#g" \
-    -e "s#{{given}}#$given#g" -e "s#{{family}}#$family#g" \
-    -e "s#{{email}}#$email#g" "$@"
+  sed -i -e "s#{{ *package *}}#$package#g" -e "s#{{ *repo *}}#$repo#g" \
+    -e "s#{{ *owner *}}#$owner#g" -e "s#{{ *site_url *}}#$site_url#g" \
+    -e "s#{{ *given *}}#$given#g" -e "s#{{ *family *}}#$family#g" \
+    -e "s#{{ *email *}}#$email#g" "$@"
 }
 
 mapfile -d '' files < <(git ls-files -z | grep -zv '^tools/')
 for f in "${files[@]}"; do
-  if grep -q '{{package}}\|{{repo}}\|{{owner}}\|{{site_url}}\|{{given}}\|{{family}}\|{{email}}' "$f"; then
+  if grep -qE '\{\{ *(package|repo|owner|site_url|given|family|email) *\}\}' "$f"; then
     fill "$f"
   fi
 done

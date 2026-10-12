@@ -54,7 +54,7 @@ jobs:
       - name: Check no template leftovers
         working-directory: ${{ env.PKG_DIR }}
         run: |
-          if grep -rnE '\{\{(package|repo|owner|site_url|given|family|email)\}\}|# template-only' \
+          if grep -rnE '\{\{ *(package|repo|owner|site_url|given|family|email) *\}\}|# template-only' \
             --exclude-dir=.git .; then
             echo "::error::Template leftovers found after setup.sh"
             exit 1

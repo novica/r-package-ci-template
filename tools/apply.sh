@@ -46,8 +46,8 @@ copy() {
   local rel="$1" dest="$pkg/$1"
   if [ -e "$dest" ]; then skipped+=("$rel"); return; fi
   mkdir -p "$(dirname "$dest")"
-  sed -e "s#{{package}}#$package#g" -e "s#{{repo}}#$repo#g" \
-      -e "s#{{owner}}#$owner#g" -e "s#{{site_url}}#$site_url#g" \
+  sed -e "s#{{ *package *}}#$package#g" -e "s#{{ *repo *}}#$repo#g" \
+      -e "s#{{ *owner *}}#$owner#g" -e "s#{{ *site_url *}}#$site_url#g" \
       -e '/# template-only$/d' "$src/$rel" > "$dest"
   copied+=("$rel")
 }
