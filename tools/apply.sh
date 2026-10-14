@@ -16,7 +16,9 @@ unreleased=false
 if [ "${1:-}" = "--unreleased" ]; then unreleased=true; shift; fi
 
 src="$(cd "$(dirname "$0")/.." && pwd)"
-pkg="$(cd "${1:?usage: tools/apply.sh [--unreleased] /path/to/package [owner/repo]}" && pwd)"
+# pwd -W (Git Bash) gives C:/... paths, which Windows R can open when the
+# path is embedded in R code below; plain pwd elsewhere.
+pkg="$(cd "${1:?usage: tools/apply.sh [--unreleased] /path/to/package [owner/repo]}" && { pwd -W 2>/dev/null || pwd; })"
 [ -f "$pkg/DESCRIPTION" ] || { echo "No DESCRIPTION in $pkg" >&2; exit 1; }
 
 field() { Rscript -e "cat(read.dcf('$pkg/DESCRIPTION', fields = '$1')[[1]])"; }
@@ -38,7 +40,8 @@ echo "Package: $package $version, repo: $repo"
 # R/, tests/, README, ...) is the skeleton for new packages.
 files=(
   $(cd "$src" && find .github -type f ! -name template-ci.yml | sort)
-  air.toml jarl.toml codecov.yml release-please-config.json inst/CITATION
+  .gitattributes air.toml jarl.toml codecov.yml release-please-config.json
+  inst/CITATION
 )
 
 copied=(); skipped=()
@@ -80,6 +83,7 @@ fi
 touch "$pkg/.Rbuildignore"
 added=0
 while IFS= read -r line; do
+  line="${line%$'\r'}"  # CRLF checkouts
   [ "$line" = '^tools$' ] && continue
   [ "$line" = '^LICENSE\.md$' ] && [ ! -e "$pkg/LICENSE.md" ] && continue
   if ! grep -qxF -- "$line" "$pkg/.Rbuildignore"; then
