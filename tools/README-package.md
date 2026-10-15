@@ -3,6 +3,7 @@
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/{{repo}}/actions/workflows/R-CMD-check.yml/badge.svg?branch=main)](https://github.com/{{repo}}/actions/workflows/R-CMD-check.yml)
 [![Codecov test coverage](https://codecov.io/gh/{{repo}}/graph/badge.svg)](https://app.codecov.io/gh/{{repo}})
+[![pkgdown](https://github.com/{{repo}}/actions/workflows/pkgdown.yml/badge.svg?branch=main)](https://github.com/{{repo}}/actions/workflows/pkgdown.yml)
 <!-- badges: end -->
 
 What the package does.
