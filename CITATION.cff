@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this template, please cite it as below."
+type: software
+title: "r-package-ci-template: CI, Release and Citation Setup for R Packages"
+abstract: >-
+  A GitHub template that sets up R CMD check, test coverage, a pkgdown site,
+  release-please releases and citation files for R packages, either as a new
+  repository or applied to an existing package.
+authors:
+  - family-names: "Nakov"
+    given-names: "Novica"
+    orcid: "https://orcid.org/0009-0005-7773-7718"
+license: MIT
+repository-code: "https://github.com/novica/r-package-ci-template"
