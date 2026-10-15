@@ -61,7 +61,7 @@ jobs:
           fi
           test ! -e tools
           test ! -e .github/workflows/template-ci.yml
-          test -f CITATION.cff
+          grep -q '^title: "testpkg: ' CITATION.cff
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
