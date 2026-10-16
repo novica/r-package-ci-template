@@ -34,7 +34,13 @@ fi
 owner="${repo%%/*}"
 site_url="https://${owner}.github.io/${repo#*/}/"
 
-echo "Package: $package $version, repo: $repo"
+# The workflows trigger on main; use the package's default branch instead.
+branch="$(git -C "$pkg" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || true)"
+branch="${branch#origin/}"
+[ -n "$branch" ] || branch="$(git -C "$pkg" branch --show-current 2>/dev/null || true)"
+[ -n "$branch" ] || branch=main
+
+echo "Package: $package $version, repo: $repo, branch: $branch"
 
 # The CI, release and citation files. The rest of the template (DESCRIPTION,
 # R/, tests/, README, ...) is the skeleton for new packages.
@@ -46,11 +52,21 @@ files=(
 
 copied=(); skipped=()
 copy() {
-  local rel="$1" dest="$pkg/$1"
+  local rel="$1" dest="$pkg/$1" alt
   if [ -e "$dest" ]; then skipped+=("$rel"); return; fi
+  # r-lib/actions and usethis name workflows .yaml; the template uses .yml.
+  case "$rel" in
+    *.yml) alt="${rel%.yml}.yaml" ;;
+    *.yaml) alt="${rel%.yaml}.yml" ;;
+    *) alt="" ;;
+  esac
+  if [ -n "$alt" ] && [ -e "$pkg/$alt" ]; then skipped+=("$rel (as $alt)"); return; fi
   mkdir -p "$(dirname "$dest")"
   sed -e "s#{{ *package *}}#$package#g" -e "s#{{ *repo *}}#$repo#g" \
       -e "s#{{ *owner *}}#$owner#g" -e "s#{{ *site_url *}}#$site_url#g" \
+      -e "s#branches: \[main\]#branches: [$branch]#" \
+      -e "s#^\( *\)- main\$#\1- $branch#" \
+      -e "s#status of main\.#status of $branch.#" \
       -e '/# template-only$/d' "$src/$rel" > "$dest"
   copied+=("$rel")
 }

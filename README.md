@@ -71,7 +71,9 @@ r-package-ci-template/tools/apply.sh path/to/package
 package skeleton. It reads the package name and version from `DESCRIPTION`
 and `owner/repo` from the `origin` remote (or pass it as the second
 argument), generates `CITATION.cff` from `DESCRIPTION` and adds the new
-files to `.Rbuildignore`. It never overwrites an existing file; skipped
+files to `.Rbuildignore`. The workflows trigger on the repository's
+default branch instead of `main`. It never overwrites an existing file,
+and a workflow already present as `.yaml` counts as existing; skipped
 files are listed so you can compare them by hand.
 
 The version in `DESCRIPTION` is taken as the last release. For a package
