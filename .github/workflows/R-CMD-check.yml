@@ -52,7 +52,7 @@ jobs:
     if: github.repository != 'novica/r-package-ci-template' # template-only
     runs-on: ${{ matrix.config.os }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }}${{ matrix.config.no-suggests && ', no Suggests' || '' }})
 
     strategy:
       fail-fast: false
@@ -62,17 +62,23 @@ jobs:
           # quarto can't load the package while R CMD build renders vignettes
           # on Windows, so vignettes are neither built nor checked there. The
           # other platforms check them.
-          - { os: windows-latest, r: "release", build-args: 'c("--no-manual", "--no-build-vignettes")', check-args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")' }
+          - { os: windows-latest, r: "release", skip-vignettes: true }
           - { os: ubuntu-latest, r: "devel", http-user-agent: "release" }
           - { os: ubuntu-latest, r: "release" }
           - { os: ubuntu-latest, r: "oldrel-1" }
+          # CRAN sometimes checks without Suggests installed, so examples and
+          # tests that use a Suggests package must be guarded. Vignettes
+          # need their engine from Suggests and are skipped here.
+          - { os: ubuntu-latest, r: "release", no-suggests: true, skip-vignettes: true }
         # R-devel has no binary packages, so that job compiles every
-        # dependency. Run it weekly and on demand, not on PRs or pushes.
-        exclude: ${{ (github.event_name == 'pull_request' || github.event_name == 'push') && fromJSON('[{"config":{"os":"ubuntu-latest","r":"devel","http-user-agent":"release"}}]') || fromJSON('[]') }}
+        # dependency. Run it and the no-Suggests check weekly and on demand,
+        # not on PRs or pushes.
+        exclude: ${{ (github.event_name == 'pull_request' || github.event_name == 'push') && fromJSON('[{"config":{"os":"ubuntu-latest","r":"devel","http-user-agent":"release"}},{"config":{"os":"ubuntu-latest","r":"release","no-suggests":true,"skip-vignettes":true}}]') || fromJSON('[]') }}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      _R_CHECK_FORCE_SUGGESTS_: ${{ matrix.config.no-suggests && 'false' || 'true' }}
 
     steps:
       - uses: actions/checkout@v7
@@ -88,12 +94,14 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          dependencies: ${{ matrix.config.no-suggests && '"hard"' || '"all"' }}
+          # The tests still need testthat without the other Suggests.
+          extra-packages: any::rcmdcheck${{ matrix.config.no-suggests && ' any::testthat' || '' }}
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           error-on: '"error"'
           upload-snapshots: true
-          build_args: ${{ matrix.config.build-args || '"--no-manual"' }}
-          args: ${{ matrix.config.check-args || 'c("--no-manual", "--as-cran")' }}
+          build_args: ${{ matrix.config.skip-vignettes && 'c("--no-manual", "--no-build-vignettes")' || '"--no-manual"' }}
+          args: ${{ matrix.config.skip-vignettes && 'c("--no-manual", "--as-cran", "--ignore-vignettes")' || 'c("--no-manual", "--as-cran")' }}

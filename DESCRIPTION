@@ -2,7 +2,7 @@ Package: {{package}}
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0
 Authors@R:
-    person("{{given}}", "{{family}}", , "{{email}}", role = c("aut", "cre"))
+    person("{{given}}", "{{family}}", , "{{email}}", role = c("aut", "cre", "cph"))
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 URL: https://github.com/{{repo}}, {{site_url}}

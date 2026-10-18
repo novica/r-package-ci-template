@@ -50,7 +50,7 @@ for f in "${files[@]}"; do
 done
 
 if [ -n "$orcid" ]; then
-  sed -i "s#role = c(\"aut\", \"cre\"))#role = c(\"aut\", \"cre\"),\n           comment = c(ORCID = \"$orcid\"))#" DESCRIPTION
+  sed -i "s#role = c(\"aut\", \"cre\", \"cph\"))#role = c(\"aut\", \"cre\", \"cph\"),\n           comment = c(ORCID = \"$orcid\"))#" DESCRIPTION
 fi
 
 fill tools/README-package.md
@@ -68,7 +68,10 @@ Set up $package ($repo).
 
 Next steps:
   1. Write the Title and Description in DESCRIPTION, and copy them into
-     title and abstract in CITATION.cff.
+     title and abstract in CITATION.cff. CRAN wants a Title in title case
+     under 65 characters, and a Description of one full paragraph that
+     doesn't start with "This package" or "Functions for". Put package and
+     software names in single quotes (including 'R') and expand acronyms.
   2. Replace R/hello.R and its test with your own code.
   3. Commit, then set up the repository settings listed in the template
      README (ruleset on main, squash merging, Actions PR permission, Pages,
