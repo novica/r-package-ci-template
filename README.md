@@ -15,7 +15,10 @@ What it sets up:
   vignettes, since Quarto can't load the package during `R CMD build`
   there. R-devel has no binary
   packages and compiles every dependency, so it stays out of PRs and runs
-  weekly and on demand.
+  weekly and on demand. So does a check without `Suggests` installed,
+  which CRAN sometimes runs: examples and tests that use a suggested
+  package must be guarded (`@examplesIf rlang::is_installed("pkg")`,
+  `testthat::skip_if_not_installed("pkg")`).
 - **Test coverage** to Codecov on every push to `main`.
 - **pkgdown site** deployed to GitHub Pages on every push to `main`.
 - **Releases with [release-please](https://github.com/googleapis/release-please)**:
