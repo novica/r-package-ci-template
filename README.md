@@ -26,7 +26,9 @@ What it sets up:
   bump in `DESCRIPTION` and `CITATION.cff`, a git tag and a GitHub release.
 - **PR title check** so every squash commit is a valid Conventional Commit.
 - **Citation files**: `inst/CITATION` built from `DESCRIPTION`, and
-  `CITATION.cff` for GitHub's "Cite this repository" button.
+  `CITATION.cff` for GitHub's "Cite this repository" button, validated
+  with [cffconvert](https://github.com/citation-file-format/cffconvert)
+  whenever it changes.
 - **Contributor files**: issue forms, a PR template with an AI-use
   disclosure, a contributing guide, `CODEOWNERS` and Dependabot for actions.
 

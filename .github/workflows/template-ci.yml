@@ -62,6 +62,13 @@ jobs:
           test ! -e tools
           test ! -e .github/workflows/template-ci.yml
           grep -q '^title: "testpkg: ' CITATION.cff
+          # The cffconvert action runs in Docker and only sees the workspace.
+          cp CITATION.cff "$GITHUB_WORKSPACE/testpkg-CITATION.cff"
+
+      - name: Validate generated CITATION.cff
+        uses: citation-file-format/cffconvert-github-action@2.0.0
+        with:
+          args: "--infile testpkg-CITATION.cff --validate"
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

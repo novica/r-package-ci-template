@@ -1,0 +1,27 @@
+name: cffconvert
+
+# Validates CITATION.cff against the Citation File Format schema whenever it
+# changes: hand edits, and the version and date-released updates on the
+# release-please PR.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "CITATION.cff"
+  pull_request:
+    paths:
+      - "CITATION.cff"
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate CITATION.cff
+        uses: citation-file-format/cffconvert-github-action@2.0.0
+        with:
+          args: "--validate"

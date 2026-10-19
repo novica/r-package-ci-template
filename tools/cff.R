@@ -7,6 +7,8 @@ site_url <- args[[3]]
 
 d <- read.dcf(file.path(pkg, "DESCRIPTION"))[1, ]
 clean <- function(x) gsub("\\s+", " ", gsub("'", "", trimws(x)))
+# Double-quoted YAML scalar.
+yaml_str <- function(x) sprintf('"%s"', gsub('(["\\\\])', "\\\\\\1", x))
 
 authors <- Filter(
   function(p) "aut" %in% p$role,
@@ -30,11 +32,11 @@ author_lines <- unlist(lapply(authors, function(p) {
   orcid <- p$comment[["ORCID"]]
   c(
     if (is.null(p$family)) {
-      sprintf("  - name: \"%s\"", p$given)
+      paste0("  - name: ", yaml_str(p$given))
     } else {
       c(
-        sprintf("  - family-names: \"%s\"", p$family),
-        sprintf("    given-names: \"%s\"", paste(p$given, collapse = " "))
+        paste0("  - family-names: ", yaml_str(p$family)),
+        paste0("    given-names: ", yaml_str(paste(p$given, collapse = " ")))
       )
     },
     if (!is.null(p$email)) sprintf("    email: %s", p$email),
@@ -48,7 +50,10 @@ lines <- c(
   "cff-version: 1.2.0",
   "message: \"If you use this software, please cite it as below.\"",
   "type: software",
-  sprintf("title: \"%s: %s\"", d[["Package"]], clean(d[["Title"]])),
+  paste0(
+    "title: ",
+    yaml_str(paste0(d[["Package"]], ": ", clean(d[["Title"]])))
+  ),
   "abstract: >-",
   abstract,
   "authors:",
